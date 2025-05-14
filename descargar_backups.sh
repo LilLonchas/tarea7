@@ -1,16 +1,18 @@
 #!/bin/bash
 
-# Ruta donde se guardan los backups
-ORIGEN="/var/backups/ldap"
+SERVIDOR="juan@192.168.1.100"
+RUTA_REMOTA="/var/backups/ldap"
+DEST_LOCAL="$HOME/backups_ldap"
 
-# Ruta destino simulando el "cliente local"
-DESTINO="$HOME/backups_ldap"
+mkdir -p "$DEST_LOCAL"
 
-# Crear destino si no existe
-mkdir -p "$DESTINO"
+echo "Descargando backups de los últimos 7 días..."
 
-# Copiar backups de los últimos 7 días
-find "$ORIGEN" -type f -mtime -7 -exec cp {} "$DESTINO" \;
+# Buscar archivos recientes y descargarlos con scp
+ssh $SERVIDOR "find $RUTA_REMOTA -type f -mtime -7" | while read archivo; do
+    scp "$SERVIDOR:$archivo" "$DEST_LOCAL/"
+done
 
-echo "Backups copiados a $DESTINO"
+echo "Descarga completada."
+
 
